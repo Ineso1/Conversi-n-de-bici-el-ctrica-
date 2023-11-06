@@ -1,0 +1,16 @@
+../Core/Src/bldc_controller.cpp:6:6:void init(Bldc*)	1
+../Core/Src/bldc_controller.cpp:29:6:void setPins_Hall(Bldc*, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t)	1
+../Core/Src/bldc_controller.cpp:39:6:void setPins_Predriver(Bldc*, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t)	1
+../Core/Src/bldc_controller.cpp:55:6:void setTimers(Bldc*, TIM_HandleTypeDef*, TIM_HandleTypeDef*, TIM_HandleTypeDef*)	1
+../Core/Src/bldc_controller.cpp:62:6:void setThrottle(Bldc*, GPIO_TypeDef*, uint16_t, ADC_HandleTypeDef*)	1
+../Core/Src/bldc_controller.cpp:69:6:void setISense(Bldc*, GPIO_TypeDef*, uint16_t, ADC_HandleTypeDef*)	1
+../Core/Src/bldc_controller.cpp:76:6:void setVSense(Bldc*, GPIO_TypeDef*, uint16_t, ADC_HandleTypeDef*)	1
+../Core/Src/bldc_controller.cpp:82:14:unsigned int get_halls(Bldc*)	5
+../Core/Src/bldc_controller.cpp:110:6:void process_halls(Bldc*)	3
+../Core/Src/bldc_controller.cpp:130:6:void writePhases(Bldc*, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t)	1
+../Core/Src/bldc_controller.cpp:139:6:void write_pd_table(Bldc*, unsigned int, unsigned int)	9
+../Core/Src/bldc_controller.cpp:161:6:void read_throttle(Bldc*)	2
+../Core/Src/bldc_controller.cpp:175:6:void read_voltage(Bldc*)	1
+../Core/Src/bldc_controller.cpp:181:6:void read_current(Bldc*)	1
+../Core/Src/bldc_controller.cpp:189:6:void pwm_irq(Bldc*)	3
+../Core/Src/bldc_controller.cpp:198:6:void adc_irq(Bldc*)	1
