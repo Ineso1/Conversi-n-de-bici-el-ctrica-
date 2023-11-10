@@ -65,8 +65,8 @@ struct Bldc {
     int FULL_SCALE_CURRENT_MA;
 
     // Throttle limits
-    int THROTTLE_LOW;
-    int THROTTLE_HIGH;
+    unsigned int THROTTLE_LOW;
+    unsigned int THROTTLE_HIGH;
 
     /*  Variables  */
     int pwm_A;
@@ -98,7 +98,7 @@ void init(struct Bldc* bldc);
 unsigned int get_halls(struct Bldc* bldc);
 void process_halls(struct Bldc* bldc);
 void writePhases(struct Bldc* bldc, uint16_t ah, uint16_t bh, uint16_t ch, uint16_t al, uint16_t bl, uint16_t cl);
-void write_pd_table(struct Bldc* bldc, unsigned int motorState, unsigned int duty);
+void write_pd_table(struct Bldc* bldc, unsigned int halls, unsigned int duty);
 
 //ADC variables
 void read_throttle(struct Bldc* bldc);
