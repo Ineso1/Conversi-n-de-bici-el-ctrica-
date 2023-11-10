@@ -22,6 +22,11 @@ void init(struct Bldc* bldc){
 	bldc->THROTTLE_HIGH = 2650;
 
     HAL_TIM_PWM_Start_IT(bldc->PWM_A, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(bldc->PWM_A, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(bldc->PWM_B, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(bldc->PWM_B, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(bldc->PWM_C, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(bldc->PWM_C, TIM_CHANNEL_2);
 
 }
 

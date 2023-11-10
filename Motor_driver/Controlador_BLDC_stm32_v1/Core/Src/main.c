@@ -180,6 +180,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
         adc_irq(&bldc);
     }
 }
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
+  if (htim->Instance == TIM2 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
+        pwm_irq(&bldc);
+  }
+}
 /* USER CODE END 4 */
 
 /**
