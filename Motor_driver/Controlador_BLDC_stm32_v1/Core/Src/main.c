@@ -92,20 +92,21 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_ADC3_Init();
   MX_ADC4_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_CAN_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   setPins_Hall(&bldc, HALL_A_GPIO_Port, HALL_A_Pin, HALL_B_GPIO_Port, HALL_B_Pin, HALL_C_GPIO_Port, HALL_C_Pin);
   setPins_Predriver(&bldc, H_A_GPIO_Port, H_A_Pin, H_B_GPIO_Port, H_B_Pin, H_C_GPIO_Port, H_C_Pin, L_A_GPIO_Port, L_A_Pin, L_B_GPIO_Port, L_B_Pin, L_C_GPIO_Port, L_C_Pin);
   setTimers(&bldc, &htim2, &htim3, &htim4);
-  setThrottle(&bldc, Throttle_GPIO_Port, Throttle_Pin, &hadc3);
+  setThrottle(&bldc, Throttle_GPIO_Port, Throttle_Pin, &hadc2);
   setISense(&bldc, Current_GPIO_Port, Current_Pin, &hadc4);
   setVSense(&bldc, Voltage_GPIO_Port, Voltage_Pin, &hadc4);
   init(&bldc);
+
   //char message[] = "Hola, mundo!\r\n";
   //process_halls(&bldc);
   /* USER CODE END 2 */
@@ -114,8 +115,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, SET);
-	  process_halls(&bldc);
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	process_halls(&bldc);
+	//HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -162,9 +164,11 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_ADC34
-                              |RCC_PERIPHCLK_TIM2|RCC_PERIPHCLK_TIM34;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_ADC12
+                              |RCC_PERIPHCLK_ADC34|RCC_PERIPHCLK_TIM2
+                              |RCC_PERIPHCLK_TIM34;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
   PeriphClkInit.Tim2ClockSelection = RCC_TIM2CLK_HCLK;
   PeriphClkInit.Tim34ClockSelection = RCC_TIM34CLK_HCLK;
@@ -176,16 +180,27 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     if (hadc == bldc.THROTTLE_ADC) {
         adc_irq(&bldc);
     }
 }
 
+
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
-  if (htim->Instance == TIM2 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
-        pwm_irq(&bldc);
+  if (htim->Instance == TIM2) {
+	  	pwm_irq(&bldc);
   }
 }
+
+/*
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	//pwm_irq(&bldc);
+}
+*/
+
+
 /* USER CODE END 4 */
 
 /**

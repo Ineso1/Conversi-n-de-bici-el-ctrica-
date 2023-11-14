@@ -2,6 +2,7 @@
 #include "usart.h"
 #include <cstdio>  // Include this for snprintf
 #include <cstring> // Include this for strlen
+#include <string.h>
 
 void init(struct Bldc* bldc){
     // Proportions
@@ -9,20 +10,27 @@ void init(struct Bldc* bldc){
 	bldc->VOLTAGE_SCALING = 3.3 / 4096 * (47 + 2.2) / 2.2 * 1000;
 
     // Parameter
-	bldc->HALL_OVERSAMPLE = 8;
+	bldc->HALL_OVERSAMPLE = 18;
 	bldc->HALL_IDENTIFY_DUTY_CYCLE = 25;
 	bldc->F_PWM = 16000;
-	bldc->DUTY_CYCLE_MAX = 4294967295;
+	bldc->DUTY_CYCLE_MAX = 255;
 
     // Current cutoff
 	bldc->FULL_SCALE_CURRENT_MA = 30000;
 
     // Throttle limits
-	bldc->THROTTLE_LOW = 600;
-	bldc->THROTTLE_HIGH = 2650;
+	bldc->THROTTLE_LOW = 200;
+	bldc->THROTTLE_HIGH = 2540;
 
-    HAL_TIM_PWM_Start_IT(bldc->PWM_A, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(bldc->PWM_A, TIM_CHANNEL_2);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_A, TIM_CHANNEL_1, 0);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_A, TIM_CHANNEL_2, 255);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_B, TIM_CHANNEL_1, 0);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_B, TIM_CHANNEL_2, 255);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_C, TIM_CHANNEL_1, 0);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_C, TIM_CHANNEL_2, 255);
+
+    HAL_TIM_PWM_Start(bldc->PWM_A, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start_IT(bldc->PWM_A, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(bldc->PWM_B, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(bldc->PWM_B, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(bldc->PWM_C, TIM_CHANNEL_1);
@@ -84,6 +92,21 @@ void setVSense(struct Bldc* bldc, GPIO_TypeDef* vSense_port, uint16_t vSense_pin
     bldc->V_SENSE_ADC = vSense_adc;
 }
 
+void print_binary(uint32_t n) {
+    char binary_str[34];  // Se aumenta en 1 para incluir el salto de línea
+    binary_str[33] = '\0';
+
+    for (int i = 31; i >= 0; --i) {
+        binary_str[i] = (n & 1) ? '1' : '0';
+        n >>= 1;
+    }
+
+    binary_str[32] = '\n';  // Agrega un salto de línea al final
+
+    HAL_UART_Transmit(&huart2, (uint8_t *)binary_str, strlen(binary_str), HAL_MAX_DELAY);
+}
+
+
 unsigned int get_halls(struct Bldc* bldc){
 	unsigned int hallCounts[] = {0, 0, 0};
 
@@ -105,76 +128,100 @@ unsigned int get_halls(struct Bldc* bldc){
 		hall |= (1 << 2);
 
 	// Print the hall value
-	char message[50];
+	//print_binary(hall);
+
+	/*char message[50];
 	snprintf(message, sizeof(message), "Hall Value: %u\r\n", hall);
-	HAL_UART_Transmit(&huart2, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart2, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);*/
 
 	return hall;
 }
 
 void process_halls(struct Bldc* bldc){
 
-	for (unsigned int i = 0; i < 6; i++) {
-	        uint8_t nextState = (i + 1) % 6;
 
-	        // Switch between states for a while
-	        for (unsigned int j = 0; j < 200; j++) {
-	            HAL_Delay(1);
-	            write_pd_table(bldc, i, bldc->HALL_IDENTIFY_DUTY_CYCLE);
-	            HAL_Delay(1);
-	            write_pd_table(bldc, nextState, bldc->HALL_IDENTIFY_DUTY_CYCLE);
-	        }
-
-	        bldc->hallToMotor[get_halls(bldc)] = (i + 2) % 6;
-	    }
-
-		write_pd_table(bldc, 0, 0);
+    for(unsigned int j = 0; j < 200; j++)
+    {
+	    unsigned int hall = get_halls(bldc);
+	    write_pd_table(bldc, hall, bldc->throttle_pwm);
+    }
+    bldc->throttle_pwm = 0;
+    HAL_ADC_Stop(bldc->THROTTLE_ADC);
+    HAL_ADC_Start_IT(bldc->THROTTLE_ADC);
 
 }
 
 void writePhases(struct Bldc* bldc, uint16_t ah, uint16_t bh, uint16_t ch, uint16_t al, uint16_t bl, uint16_t cl){
 	__HAL_TIM_SET_COMPARE(bldc->PWM_A, TIM_CHANNEL_1, ah);
-	__HAL_TIM_SET_COMPARE(bldc->PWM_A, TIM_CHANNEL_2, al);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_A, TIM_CHANNEL_2, 255 - al);
 	__HAL_TIM_SET_COMPARE(bldc->PWM_B, TIM_CHANNEL_1, bh);
-	__HAL_TIM_SET_COMPARE(bldc->PWM_B, TIM_CHANNEL_2, bl);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_B, TIM_CHANNEL_2, 255 - bl);
 	__HAL_TIM_SET_COMPARE(bldc->PWM_C, TIM_CHANNEL_1, ch);
-	__HAL_TIM_SET_COMPARE(bldc->PWM_C, TIM_CHANNEL_2, cl);
+	__HAL_TIM_SET_COMPARE(bldc->PWM_C, TIM_CHANNEL_2, 255 - cl);
 }
 
-void write_pd_table(struct Bldc* bldc, unsigned int motorState, unsigned int duty){
-	if (duty == 0 || duty > 255)
-	        motorState = 255;
+void write_pd_table(struct Bldc* bldc, unsigned int halls, unsigned int duty){
 
-	unsigned int complement = 255 - duty;
+	if(duty > 255){
+		duty = 0;
+	}
+	if(duty < 40){
+		bldc->throttle_pwm = 0;
+		duty = 0;
+		halls = 8;
+	}
 
-	if (motorState == 0)
-		writePhases(bldc, 0, duty, 0, 255, complement, 0);
-	else if (motorState == 1)
-		writePhases(bldc, 0, 0, duty, 255, 0, complement);
-	else if (motorState == 2)
-		writePhases(bldc, 0, 0, duty, 0, 255, complement);
-	else if (motorState == 3)
-		writePhases(bldc, duty, 0, 0, complement, 255, 0);
-	else if (motorState == 4)
-		writePhases(bldc, duty, 0, 0, complement, 0, 255);
-	else if (motorState == 5)
-		writePhases(bldc, 0, duty, 0, 0, complement, 255);
-	else
-		writePhases(bldc, 0, 0, 0, 0, 0, 0);
+	unsigned int complement = 255 - duty - 6;
+
+
+	switch(halls){
+        case 1: // Case 001
+           writePhases(bldc, duty, 0, 0, complement, 0, 255);  //writePhases(0, 0, duty, 255, 0, 0);
+           break;
+        case 2: // Case 010
+           writePhases(bldc, 0, 0, duty, 0, 255, complement);  //writePhases(0, duty, 0, 0, 0, 255);
+           break;
+        case 3: // Case 011
+           writePhases(bldc, duty, 0, 0, complement, 255, 0);  //writePhases(0, duty, 0, 255, 0, 0);
+           break;
+        case 4: // Case 100
+           writePhases(bldc, 0, duty, 0, 255, complement, 0);  //writePhases(duty, 0, 0, 0, 255, 0);
+           break;
+        case 5: // Case 101
+           writePhases(bldc, 0, duty, 0, 0, complement, 255);  //writePhases(0, 0, duty, 0, 255, 0);
+           break;
+        case 6: // Case 110
+           writePhases(bldc, 0, 0, duty, 255, 0, complement);  //writePhases(duty, 0, 0, 0, 0, 255);
+           break;
+        default: // Case 000 or error
+           writePhases(bldc, 0, 0, 0, 255, 255, 255);
+	}
+
 }
 
 void read_throttle(struct Bldc* bldc){
 	unsigned int throttle_adc = HAL_ADC_GetValue(bldc->THROTTLE_ADC);
-	throttle_adc = (throttle_adc - bldc->THROTTLE_LOW) * 256;
+
+	throttle_adc = (throttle_adc - bldc->THROTTLE_LOW) * 255;
+	if(throttle_adc < 0){
+		throttle_adc *= -1;
+	}
+
 	throttle_adc = throttle_adc / (bldc->THROTTLE_HIGH - bldc->THROTTLE_LOW);
-	throttle_adc = 150;
 	bldc->throttle_pwm = throttle_adc;
 
-	    if (throttle_adc > 255) // Bound the output between 0 and 255
+	/*
+	char message[50];
+	snprintf(message, sizeof(message), "Throttle Value: %u\r\n", throttle_adc);
+	HAL_UART_Transmit(&huart2, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);
+	*/
+
+	    if (throttle_adc >= 255) // Bound the output between 0 and 255
 	    	bldc->throttle_pwm = 255;
 
-	    if (throttle_adc < 0)
+	    if (throttle_adc <= 0)
 	    	bldc->throttle_pwm = 0;
+
 }
 
 void read_voltage(struct Bldc* bldc){
@@ -192,23 +239,27 @@ void read_current(struct Bldc* bldc){
 
 
 void pwm_irq(struct Bldc* bldc) {
-	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	HAL_ADC_Start_IT(bldc->THROTTLE_ADC);
-	HAL_ADC_Start_IT(bldc->I_SENSE_ADC);
-	__HAL_TIM_CLEAR_FLAG(bldc->PWM_A, TIM_FLAG_UPDATE);
-	while (HAL_ADC_GetState(bldc->THROTTLE_ADC) != HAL_ADC_STATE_REG_EOC) {}
-	while (HAL_ADC_GetState(bldc->I_SENSE_ADC) != HAL_ADC_STATE_REG_EOC) {}
+	HAL_ADC_Start(bldc->I_SENSE_ADC);
+	//__HAL_TIM_CLEAR_FLAG(bldc->PWM_A, TIM_FLAG_UPDATE);
+
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 
 void adc_irq(struct Bldc* bldc) {
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	read_throttle(bldc);
 	read_voltage(bldc);
 	read_current(bldc);
+
+	unsigned int halls = get_halls(bldc);
+
+	write_pd_table(bldc, halls, bldc->throttle_pwm);
+	//__HAL_ADC_RESET_HANDLE_STATE(bldc->THROTTLE_ADC);
+	/*char message[50];
+	snprintf(message, sizeof(message), "Throttle Value: %u\r\n", bldc->throttle_pwm);
+	HAL_UART_Transmit(&huart2, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);*/
+
+	HAL_TIM_PWM_Stop(bldc->PWM_A, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start_IT(bldc->PWM_A, TIM_CHANNEL_2);
 }
-
-
-
-
-
-
-
