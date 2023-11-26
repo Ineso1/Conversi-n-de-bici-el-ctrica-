@@ -18,17 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
-#include "dma.h"
-#include "i2c.h"
-#include "spi.h"
+#include "adc.h"
+#include "can.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <bldc_controller.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,8 +52,8 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
+struct Bldc bldc;
 
 /* USER CODE END PFP */
 
@@ -71,6 +69,7 @@ void MX_FREERTOS_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  
 
   /* USER CODE END 1 */
 
@@ -92,32 +91,38 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USART2_UART_Init();
-  MX_SPI2_Init();
-  MX_I2C1_Init();
-  MX_TIM17_Init();
-  MX_USART3_UART_Init();
+  MX_ADC4_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_CAN_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
-  CANSPI_Initialize();
-  BNO055_Init_I2C(&hi2c1);
+  setPins_Hall(&bldc, HALL_A_GPIO_Port, HALL_A_Pin, HALL_B_GPIO_Port, HALL_B_Pin, HALL_C_GPIO_Port, HALL_C_Pin);
+  setPins_Predriver(&bldc, H_A_GPIO_Port, H_A_Pin, H_B_GPIO_Port, H_B_Pin, H_C_GPIO_Port, H_C_Pin, L_A_GPIO_Port, L_A_Pin, L_B_GPIO_Port, L_B_Pin, L_C_GPIO_Port, L_C_Pin);
+  setTimers(&bldc, &htim2, &htim3, &htim4);
+  setThrottle(&bldc, Throttle_GPIO_Port, Throttle_Pin, &hadc2);
+  setISense(&bldc, Current_GPIO_Port, Current_Pin, &hadc4);
+  setVSense(&bldc, Voltage_GPIO_Port, Voltage_Pin, &hadc4);
+  init(&bldc);
+
+  //char message[] = "Hola, mundo!\r\n";
+  //process_halls(&bldc);
   /* USER CODE END 2 */
 
-  /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	process_halls(&bldc);
+	//HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
+  return 0;
   /* USER CODE END 3 */
 }
 
@@ -159,12 +164,14 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_USART3
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_TIM17;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_ADC12
+                              |RCC_PERIPHCLK_ADC34|RCC_PERIPHCLK_TIM2
+                              |RCC_PERIPHCLK_TIM34;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-  PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
-  PeriphClkInit.Tim17ClockSelection = RCC_TIM17CLK_HCLK;
+  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+  PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
+  PeriphClkInit.Tim2ClockSelection = RCC_TIM2CLK_HCLK;
+  PeriphClkInit.Tim34ClockSelection = RCC_TIM34CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -172,29 +179,29 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+    if (hadc == bldc.THROTTLE_ADC) {
+        adc_irq(&bldc);
+    }
+}
+
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
+  if (htim->Instance == TIM2) {
+	  	pwm_irq(&bldc);
+  }
+}
+
+/*
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	//pwm_irq(&bldc);
+}
+*/
+
 
 /* USER CODE END 4 */
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM1 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

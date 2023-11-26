@@ -9,10 +9,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/subdir.mk
--include Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/subdir.mk
--include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
--include Middlewares/Third_Party/FreeRTOS/Source/subdir.mk
 -include Drivers/STM32F3xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
@@ -53,34 +49,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := ECU_M1
+BUILD_ARTIFACT_NAME := Controlador_BLDC_stm32_v1
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-ECU_M1.elf \
+Controlador_BLDC_stm32_v1.elf \
 
 MAP_FILES += \
-ECU_M1.map \
+Controlador_BLDC_stm32_v1.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-ECU_M1.list \
+Controlador_BLDC_stm32_v1.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: ECU_M1.elf secondary-outputs
+main-build: Controlador_BLDC_stm32_v1.elf secondary-outputs
 
 # Tool invocations
-ECU_M1.elf ECU_M1.map: $(OBJS) $(USER_OBJS) F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "ECU_M1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_M1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+Controlador_BLDC_stm32_v1.elf Controlador_BLDC_stm32_v1.map: $(OBJS) $(USER_OBJS) F:\Controladoooooor\Controlador_BLDC_stm32_v1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "Controlador_BLDC_stm32_v1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Controladoooooor\Controlador_BLDC_stm32_v1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Controlador_BLDC_stm32_v1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -89,14 +85,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-ECU_M1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ECU_M1.list"
+Controlador_BLDC_stm32_v1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Controlador_BLDC_stm32_v1.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) ECU_M1.elf ECU_M1.list ECU_M1.map default.size.stdout
+	-$(RM) Controlador_BLDC_stm32_v1.elf Controlador_BLDC_stm32_v1.list Controlador_BLDC_stm32_v1.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

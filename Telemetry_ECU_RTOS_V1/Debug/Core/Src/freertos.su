@@ -1,0 +1,14 @@
+../Core/Src/freertos.c:127:6:vApplicationGetIdleTaskMemory	24	static
+../Core/Src/freertos.c:141:6:MX_FREERTOS_Init	128	static
+../Core/Src/freertos.c:193:6:StartDefaultTask	32	static
+../Core/Src/freertos.c:218:6:StartPwmHandle	32	static
+../Core/Src/freertos.c:246:6:StartAdcHandle	24	static
+../Core/Src/freertos.c:269:6:StartCanHandler	16	static
+../Core/Src/freertos.c:294:6:init_bldc	8	static
+../Core/Src/freertos.c:333:14:get_halls	32	static
+../Core/Src/freertos.c:365:6:process_halls	16	static
+../Core/Src/freertos.c:377:6:writePhases	16	static
+../Core/Src/freertos.c:386:6:write_pd_table	32	static
+../Core/Src/freertos.c:425:6:read_throttle	16	static
+../Core/Src/freertos.c:451:6:read_voltage	16	static
+../Core/Src/freertos.c:457:6:read_current	16	static
