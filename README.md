@@ -1,6 +1,10 @@
 # Conversion-de-bici-electrica-
 Con telemetría XD
 
+# BLDC controller pinout
+
+![image](https://github.com/Ineso1/Conversion-de-bici-electrica-/assets/84602829/58cb6a39-c17d-4182-9a79-42717728d032)
+
 # BLDC Motor Controller with FreeRTOS
 ## BLDC_Controller_RTOS
 This repository contains embedded software for controlling a Brushless DC (BLDC) motor using a microcontroller and FreeRTOS. It is designed to run on STMicroelectronics' hardware and uses the HAL library for hardware abstraction.
@@ -29,6 +33,8 @@ This repository contains embedded software for controlling a Brushless DC (BLDC)
 # Interrupt-Based BLDC Motor Controller
 ## BLDC_Controller_interrupction
 This repository contains an interrupt-based software framework for controlling a Brushless DC (BLDC) motor using a microcontroller. The control logic is implemented in a modular way, with configuration and operation handled through a `Bldc` structure and associated functions.
+
+![image](https://github.com/Ineso1/Conversion-de-bici-electrica-/assets/84602829/9b6637ee-9a81-46b2-9fa4-c4b9dd132fd4)
 
 ## Features
 
