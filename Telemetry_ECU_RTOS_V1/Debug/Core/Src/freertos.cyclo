@@ -1,0 +1,6 @@
+../Core/Src/freertos.c:83:6:vApplicationGetIdleTaskMemory	1
+../Core/Src/freertos.c:97:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:148:6:StartDefaultTask	1
+../Core/Src/freertos.c:170:6:StartRecepcionCAN	2
+../Core/Src/freertos.c:218:6:StartIMUprocess	1
+../Core/Src/freertos.c:257:6:StartUARTcom	1
