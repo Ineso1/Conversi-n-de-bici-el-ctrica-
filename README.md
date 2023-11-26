@@ -1,7 +1,7 @@
 # Conversion-de-bici-electrica-
 Con telemetría XD
 
-#Nucleo F303RE
+# Nucleo F303RE
 https://www.st.com/en/evaluation-tools/nucleo-f303re.html
 
 # MCP2515
