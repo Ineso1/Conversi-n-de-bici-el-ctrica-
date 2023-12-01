@@ -55,7 +55,9 @@ This repository contains an interrupt-based software framework for controlling a
    ```sh
    git clone [https://github.com/your-username/interrupt-bldc-controller.git](https://github.com/Ineso1/Conversion-de-bici-electrica-/tree/main/BLDC_Controller_interruption_V1)
 
-
+# BIKE ECU
+ 
+ ![image](https://github.com/Ineso1/Conversion-de-bici-electrica-/assets/84602829/35a5a5a4-acd3-4a07-b4e1-88d51761408d)
 
 # NucleoF303RE
 https://www.st.com/en/evaluation-tools/nucleo-f303re.html
