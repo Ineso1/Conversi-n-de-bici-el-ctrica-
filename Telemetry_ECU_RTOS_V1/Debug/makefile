@@ -79,8 +79,8 @@ all: main-build
 main-build: ECU_M1.elf secondary-outputs
 
 # Tool invocations
-ECU_M1.elf ECU_M1.map: $(OBJS) $(USER_OBJS) F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "ECU_M1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_M1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+ECU_M1.elf ECU_M1.map: $(OBJS) $(USER_OBJS) F:\RepoBiciElectrica\Conversion-de-bici-electrica-\Telemetry_ECU_RTOS_V1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "ECU_M1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\RepoBiciElectrica\Conversion-de-bici-electrica-\Telemetry_ECU_RTOS_V1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_M1.map" -Wl,--gc-sections -static -L../Middlewares/ST/ARM/DSP/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -1,6 +1,9 @@
-../Core/Src/freertos.c:83:6:vApplicationGetIdleTaskMemory	1
-../Core/Src/freertos.c:97:6:MX_FREERTOS_Init	1
-../Core/Src/freertos.c:148:6:StartDefaultTask	1
-../Core/Src/freertos.c:170:6:StartRecepcionCAN	2
-../Core/Src/freertos.c:218:6:StartIMUprocess	1
-../Core/Src/freertos.c:257:6:StartUARTcom	1
+../Core/Src/freertos.c:117:6:vApplicationGetIdleTaskMemory	1
+../Core/Src/freertos.c:131:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:183:6:StartDefaultTask	1
+../Core/Src/freertos.c:205:6:StartRecepcionCAN	2
+../Core/Src/freertos.c:253:6:StartIMUprocess	2
+../Core/Src/freertos.c:283:6:StartUARTcom	1
+../Core/Src/freertos.c:301:6:IMU_acceleration	1
+../Core/Src/freertos.c:315:6:IMU_dsp	1
+../Core/Src/freertos.c:319:6:acceleration_data_conversion	1

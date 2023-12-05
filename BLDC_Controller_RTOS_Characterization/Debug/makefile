@@ -79,8 +79,8 @@ all: main-build
 main-build: BLDC_RTOS_V1.elf secondary-outputs
 
 # Tool invocations
-BLDC_RTOS_V1.elf BLDC_RTOS_V1.map: $(OBJS) $(USER_OBJS) F:\Controlador_fritos\BLDC_RTOS_V1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "BLDC_RTOS_V1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Controlador_fritos\BLDC_RTOS_V1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="BLDC_RTOS_V1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+BLDC_RTOS_V1.elf BLDC_RTOS_V1.map: $(OBJS) $(USER_OBJS) F:\RepoBiciElectrica\Conversion-de-bici-electrica-\BLDC_Controller_RTOS_Characterization\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "BLDC_RTOS_V1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\RepoBiciElectrica\Conversion-de-bici-electrica-\BLDC_Controller_RTOS_Characterization\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="BLDC_RTOS_V1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
