@@ -53,34 +53,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := BLDC_RTOS_V1
+BUILD_ARTIFACT_NAME := ECU_M1
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-BLDC_RTOS_V1.elf \
+ECU_M1.elf \
 
 MAP_FILES += \
-BLDC_RTOS_V1.map \
+ECU_M1.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-BLDC_RTOS_V1.list \
+ECU_M1.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: BLDC_RTOS_V1.elf secondary-outputs
+main-build: ECU_M1.elf secondary-outputs
 
 # Tool invocations
-BLDC_RTOS_V1.elf BLDC_RTOS_V1.map: $(OBJS) $(USER_OBJS) F:\Controlador_fritos\BLDC_RTOS_V1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "BLDC_RTOS_V1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Controlador_fritos\BLDC_RTOS_V1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="BLDC_RTOS_V1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+ECU_M1.elf ECU_M1.map: $(OBJS) $(USER_OBJS) F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "ECU_M1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"F:\Bici_Ecu\ECU_M1\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_M1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -89,14 +89,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-BLDC_RTOS_V1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "BLDC_RTOS_V1.list"
+ECU_M1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ECU_M1.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) BLDC_RTOS_V1.elf BLDC_RTOS_V1.list BLDC_RTOS_V1.map default.size.stdout
+	-$(RM) ECU_M1.elf ECU_M1.list ECU_M1.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
